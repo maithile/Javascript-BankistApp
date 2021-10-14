@@ -70,7 +70,15 @@ const currencies = new Map([
   ['GBP', 'Pound sterling'],
 ]);
 
-// lay DOM ra r gawn vao thoi ma
+// Caculator Balance
+const cacuBalance = function (mov) {
+  const sum = movements.reduce(function (acc, cur) {
+    return acc + cur;
+  }, 0);
+  labelBalance.innerHTML = `${sum} EUR`;
+};
+cacuBalance(account1.movements);
+// Display movment
 const displayMoments = function (movements) {
   containerMovements.textContent = ' ';
   movements.forEach(function (mov, i) {
@@ -84,7 +92,88 @@ const displayMoments = function (movements) {
 };
 displayMoments(account1.movements);
 
+//////////////* Ham Map *////////////////
 
-// ddooi sang USD
+//change to USD
+// const eurtoUsd = 1.1;
+// const movementUSD = movements.map(function (mov) {
+//   return mov * eurtoUsd;
+// });
+// arrow function
+// const eurtoUsd = 1.1;
+// const movementUSD = movements.map(mov => mov * eurtoUsd);
+// console.log(movements);
+// console.log(movementUSD);
 
-const 
+// // chay bang loop
+// const moveLoopUSD = [];
+// for (const mov of movements) {
+//   const loopMov = mov * eurtoUsd;
+//   moveLoopUSD.push(loopMov);
+// }
+// console.log(moveLoopUSD);
+
+// // push string inside
+// const moventString = movements.map(function (mov, i) {
+//   return `you have ${mov > 0 ? 'deposit' : 'withdral'}: ${mov}`;
+
+//   if (mov > 0) {
+//     return `You have deposit ${mov}`;
+//   } else {
+//     return `You have withdral ${mov}`;
+//   }
+// });
+// console.log(moventString);
+
+//////////////* Compute Username *////////////////
+// const createUsername = function (accs) {
+//   accs.forEach(function (acc) {
+//     acc.username = acc.owner
+//       .toLowerCase()
+//       .split(' ')
+//       .map(name => name[0])
+//       .join('');
+//   });
+// };
+// createUsername(accounts); // ok kha la hay
+// console.log(accounts);
+
+//////////////* Fillter *////////////////
+
+// const moventDepisit = movements.filter(function (mov) {
+//   return mov > 0;
+// });
+
+// const moventWithdrall = movements.filter(function (mov) {
+//   return mov < 0;
+// });
+// const testLoop = [];
+// for (const mov of movements) {
+//   if (mov > 0) {
+//     testLoop.push(mov);
+//   }
+// }
+
+// console.log(moventWithdrall);
+// console.log(moventDepisit);
+// console.log(testLoop);
+
+//////////////* Reduce  *////////////////
+
+// const sum = movements.reduce(function (acc, cur, i, arr) {
+//   // console.log(`loop ${i} : ${acc}`);
+//   return acc + cur;
+// }, 0);
+
+// tim max in array
+// console.log(movements);
+// const max = movements.reduce(function (acc, cur) {
+//   if (acc > cur) return acc;
+//   else return mov;
+// }, movements[0]);
+// forloop
+// let testSum = 0;
+// for (const mov of movements) {
+//   testSum = testSum + mov;
+// }
+// console.log(testSum);
