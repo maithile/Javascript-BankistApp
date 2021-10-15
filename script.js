@@ -266,3 +266,22 @@ btnTransfer.addEventListener('click', function (e) {
   }
   inputTransferTo.value = inputTransferAmount.value = '';
 });
+
+///////////// Delete Account  ///////////////////
+// dung splice cat no di
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    const index = accounts.findIndex(
+      acc => acc.username === currentAccount.username
+    );
+    accounts.splice(index, 1);
+  }
+  inputCloseUsername.value = inputClosePin.value = '';
+  // hide account
+  containerApp.style.opacity = 0;
+});
