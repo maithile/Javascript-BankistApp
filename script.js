@@ -121,6 +121,95 @@ const displayMoments = function (movements) {
   });
 };
 
+//////////////* sort *////////////////
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  displayMoments(currentAccount.movements.sort((a, b) => a - b));
+});
+
+///////////// Update IU ///////////////////
+const updataeUI = function (updateAcc) {
+  // Display balance
+  cacuBalance(updateAcc);
+  // Display movement
+  displayMoments(updateAcc.movements);
+  // display sumary
+  calDisplaySummary(updateAcc);
+};
+
+///////////// Login In ///////////////////
+let currentAccount;
+btnLogin.addEventListener('click', function (e) {
+  e.preventDefault();
+  currentAccount = accounts.find(
+    acc => acc.username === inputLoginUsername.value
+  );
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    //Display UI
+    labelWelcome.textContent = `hello ${currentAccount.owner.split(' ')[0]}`;
+    containerApp.style.opacity = 1;
+    updataeUI(currentAccount);
+    inputLoginUsername.value = inputLoginPin.value = '';
+    inputLoginPin.blur();
+  }
+});
+
+///////////// Loan ///////////////////
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const amoutRequest = Number(inputLoanAmount.value);
+  if (amoutRequest > 0 && currentAccount.movements.some(mov => mov >= 0)) {
+    currentAccount.movements.push(amoutRequest);
+
+    // update UI
+    updataeUI(currentAccount);
+  }
+
+  inputLoanAmount.value = '';
+});
+///////////// Transfer ///////////////////
+
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const amount = Number(inputTransferAmount.value);
+  const receiverAcc = accounts.find(
+    acc => acc.username === inputTransferTo.value
+  );
+  console.log(amount, receiverAcc);
+  if (
+    amount > 0 &&
+    receiverAcc &&
+    receiverAcc.username !== currentAccount.username
+  ) {
+    // Doing transfer
+    currentAccount.movements.push(-amount);
+    receiverAcc.movements.push(amount);
+    updataeUI(currentAccount);
+  }
+  inputTransferTo.value = inputTransferAmount.value = '';
+});
+
+///////////// Delete Account  ///////////////////
+// dung splice cat no di
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    const index = accounts.findIndex(
+      acc => acc.username === currentAccount.username
+    );
+    accounts.splice(index, 1);
+  }
+  inputCloseUsername.value = inputClosePin.value = '';
+  // hide account
+  containerApp.style.opacity = 0;
+});
+
+console.log(movements.slice());
 //////////////* Ham Map *////////////////
 
 //change to USD
@@ -218,70 +307,58 @@ const displayMoments = function (movements) {
 
 // const account = accounts.find(acc => acc.owner === 'Jessica Davis');
 
-const updataeUI = function (updateAcc) {
-  // Display balance
-  cacuBalance(updateAcc);
-  // Display movement
-  displayMoments(updateAcc.movements);
-  // display sumary
-  calDisplaySummary(updateAcc);
-};
+// // flat method
+// const arr = [
+//   [1, 2, 3],
+//   [4, 5, 6],
+//   [7, 8, 9],
+// ];
+// const arrDeep = [
+//   [[1, 2], 3],
+//   [4, 5],
+// ];
+// console.log(arr.flat());
+// console.log(arrDeep.flat(2));
 
-///////////// Login In ///////////////////
-let currentAccount;
-btnLogin.addEventListener('click', function (e) {
-  e.preventDefault();
-  currentAccount = accounts.find(
-    acc => acc.username === inputLoginUsername.value
-  );
-  if (currentAccount?.pin === Number(inputLoginPin.value)) {
-    //Display UI
-    labelWelcome.textContent = `hello ${currentAccount.owner.split(' ')[0]}`;
-    containerApp.style.opacity = 1;
-    updataeUI(currentAccount);
-    inputLoginUsername.value = inputLoginPin.value = '';
-    inputLoginPin.blur();
-  }
-});
+// const accMoves = accounts.map(acc => acc.movements);
 
-///////////// Transfer ///////////////////
+// console.log(accMoves);
 
-btnTransfer.addEventListener('click', function (e) {
-  e.preventDefault();
+// const allMoves = accMoves.flat();
+// console.log(allMoves);
+// console.log(allMoves.reduce((acc, cur) => acc + cur, 0));
 
-  const amount = Number(inputTransferAmount.value);
-  const receiverAcc = accounts.find(
-    acc => acc.username === inputTransferTo.value
-  );
-  console.log(amount, receiverAcc);
-  if (
-    amount > 0 &&
-    receiverAcc &&
-    receiverAcc.username !== currentAccount.username
-  ) {
-    // Doing transfer
-    currentAccount.movements.push(-amount);
-    receiverAcc.movements.push(amount);
-    updataeUI(currentAccount);
-  }
-  inputTransferTo.value = inputTransferAmount.value = '';
-});
+// const totalMoves = accounts
+//   .map(acc => acc.movements)
+//   .flat()
+//   .reduce((mov, cur) => mov + cur, 0);
+// console.log(totalMoves);
 
-///////////// Delete Account  ///////////////////
-// dung splice cat no di
-btnClose.addEventListener('click', function (e) {
-  e.preventDefault();
+// // flat map
+// const totalMove = accounts
+//   .flatMap(acc => acc.movements)
+//   .flat()
+//   .reduce((mov, cur) => mov + cur, 0);
+// console.log(totalMove);
 
-  if (
-    inputCloseUsername.value === currentAccount.username &&
-    Number(inputClosePin.value) === currentAccount.pin
-  ) {
-    const index = accounts.findIndex(
-      acc => acc.username === currentAccount.username
-    );
-    accounts.splice(index, 1);
-  }
-  inputCloseUsername.value = inputClosePin.value = '';
-  // hide account
-  containerApp.style.opacity = 0;
-});
+// sort
+
+// tring
+
+// const myLife = ['Simon', 'Duong', 'LA', 'Family', 'goodFriends'];
+// console.log(myLife.sort());
+
+// test
+// console.log(movements);
+
+// notteeeeeeeeeeeee
+// neu return > 0van giu nguyen vi tri
+// neu return < 0 doi vi tri
+
+// const sortMoves = movements.sort((a, b) => {
+//   if (a > b) return 1;
+//   if (a < b) return -1;
+// });
+
+// const sortMoves = movements.sort((a, b) => a - b);
+// console.log(sortMoves);
