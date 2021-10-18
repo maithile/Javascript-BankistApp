@@ -109,9 +109,12 @@ const calDisplaySummary = function (account) {
 };
 
 // Display movment
-const displayMoments = function (movements) {
-  containerMovements.textContent = ' ';
-  movements.forEach(function (mov, i) {
+const displayMoments = function (movements, sort = false) {
+  containerMovements.innerHTML = ' ';
+  const sortMovements = sort
+    ? movements.slice().sort((a, b) => a - b)
+    : movements;
+  sortMovements.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const html = `<div class="movements__row">
     <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
@@ -122,9 +125,11 @@ const displayMoments = function (movements) {
 };
 
 //////////////* sort *////////////////
+let sorted = false;
 btnSort.addEventListener('click', function (e) {
   e.preventDefault();
-  displayMoments(currentAccount.movements.sort((a, b) => a - b));
+  displayMoments(currentAccount.movements, !sorted);
+  sorted = !sorted;
 });
 
 ///////////// Update IU ///////////////////
@@ -211,7 +216,6 @@ btnClose.addEventListener('click', function (e) {
 
 console.log(movements.slice());
 //////////////* Ham Map *////////////////
-
 //change to USD
 // const eurtoUsd = 1.1;
 // const movementUSD = movements.map(function (mov) {
