@@ -214,7 +214,7 @@ btnClose.addEventListener('click', function (e) {
   containerApp.style.opacity = 0;
 });
 
-console.log(movements.slice());
+// console.log(movements.slice());
 //////////////* Ham Map *////////////////
 //change to USD
 // const eurtoUsd = 1.1;
@@ -366,3 +366,35 @@ console.log(movements.slice());
 
 // const sortMoves = movements.sort((a, b) => a - b);
 // console.log(sortMoves);
+
+// more ways to create and filling arrays
+
+// const arr = [1, 2, 3, 4, 5, 6, 7]; // cach 1
+// console.log(new Array(1, 2, 3, 4, 5, 6, 7)); // cach 2
+
+// const x = new Array(7);
+
+// x.fill(1, 3, 4);
+// console.log(x);
+
+// arr.fill('passed', 0, 4);
+// console.log(arr);
+
+// // recreate array
+// const y = Array.from({ length: 7 }, () => 1);
+// console.log(y);
+
+// const z = Array.from({ length: 4 }, (_, i) => i);
+
+// map chi lay duoc so
+
+labelBalance.addEventListener('click', function () {
+  const movesUI1 = Array.from(
+    document.querySelectorAll('.movements__value'),
+    el => Number(el.textContent.replace('€', ''))
+  );
+  // console.log(movesUI1);
+
+  // cach khac
+  const movesUT2 = [...document.querySelectorAll('.movements__value')];
+});
