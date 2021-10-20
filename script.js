@@ -388,13 +388,70 @@ btnClose.addEventListener('click', function (e) {
 
 // map chi lay duoc so
 
-labelBalance.addEventListener('click', function () {
-  const movesUI1 = Array.from(
-    document.querySelectorAll('.movements__value'),
-    el => Number(el.textContent.replace('€', ''))
-  );
-  // console.log(movesUI1);
+// labelBalance.addEventListener('click', function () {
+//   const movesUI1 = Array.from(
+//     document.querySelectorAll('.movements__value'),
+//     el => Number(el.textContent.replace('€', ''))
+//   );
+//   // console.log(movesUI1);
 
-  // cach khac
-  const movesUT2 = [...document.querySelectorAll('.movements__value')];
-});
+//   // cach khac
+//   const movesUT2 = [...document.querySelectorAll('.movements__value')];
+// });
+
+/////////////////// practice 1 /////////////////
+const bankDepositSum = accounts
+  .map(acc => acc.movements)
+  .flat()
+  .filter(mov => mov > 0)
+  .reduce((acc, cur) => acc + cur, 0);
+// console.log(bankDepositSum);
+
+// another way
+const bankDepositSum2 = accounts.flatMap(acc => acc.movements);
+
+/////////////////// practice 2  /////////////////
+// const bankDeposit1000 = accounts
+//   .map(acc => acc.movements)
+//   .flat()
+//   .filter(mov => mov >= 1000);
+// console.log(bankDeposit1000.length);
+
+const bankDeposit1000 = accounts
+  .flatMap(acc => acc.movements)
+  .reduce((count, cur) => (cur >= 1000 ? ++count : count), 0);
+// console.log(bankDeposit1000);
+
+const { deposit, withdraw } = accounts
+  .flatMap(acc => acc.movements)
+  .reduce(
+    (sum, cur) => {
+      // cur > 0 ? (sum.deposit += cur) : (sum.withdraw += cur);
+      sum[cur > 0 ? 'deposit' : 'withdraw'] += cur; // ui za tui quen cho nay
+      return sum;
+    },
+    { deposit: 0, withdraw: 0 }
+  );
+// console.log(deposit, withdraw);
+
+//// I wan to say thank Jonas a lot
+
+//////////////// change title //////////////
+
+// kêt thúc phần aray m học được rất nhiều thứ, chuyển sang phần luyện tập nào
+
+const convertTitleCase = function (title) {
+  const exceptions = ['a', 'an', 'the', 'but', 'or', 'on', 'in', 'with', 'and'];
+  const capitalize = str => str[0].toUpperCase() + str.slice(1);
+
+  const titleCase = title
+    .toLowerCase()
+    .split(' ')
+    .map(word => (exceptions.includes(word) ? word : capitalize(word)))
+    .join(' ');
+
+  // console.log(titleCase);
+  return capitalize(titleCase); //loai  tu dau tien
+};
+
+// console.log(convertTitleCase('and here is another title WITH an EXAMPLE'));
