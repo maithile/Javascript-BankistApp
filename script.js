@@ -10,6 +10,18 @@ const account1 = {
   movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
   interestRate: 1.2, // %
   pin: 1111,
+  movementsDates: [
+    '2019-11-18T21:31:17.178Z',
+    '2019-12-23T07:42:02.383Z',
+    '2020-01-28T09:15:04.904Z',
+    '2020-04-01T10:17:24.185Z',
+    '2020-05-08T14:11:59.604Z',
+    '2021-10-24T17:01:17.194Z',
+    '2021-10-22T23:36:17.929Z',
+    '2021-10-25T10:51:36.790Z',
+  ],
+  currency: 'EUR',
+  locale: 'pt-PT', // de-DE
 };
 
 const account2 = {
@@ -17,6 +29,18 @@ const account2 = {
   movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
   interestRate: 1.5,
   pin: 2222,
+  movementsDates: [
+    '2019-11-01T13:15:33.035Z',
+    '2019-11-30T09:48:16.867Z',
+    '2019-12-25T06:04:23.907Z',
+    '2020-01-25T14:18:46.235Z',
+    '2020-02-05T16:33:06.386Z',
+    '2020-04-10T14:43:26.374Z',
+    '2020-06-25T18:49:59.371Z',
+    '2020-07-26T12:01:20.894Z',
+  ],
+  currency: 'USD',
+  locale: 'en-US',
 };
 
 const account3 = {
@@ -108,16 +132,39 @@ const calDisplaySummary = function (account) {
   labelSumInterest.textContent = `${interest}€`;
 };
 
+// function date
+const movemntDate = function (date) {
+  const dayCount = (date1, date2) =>
+    Math.abs(date2 - date1) / (1000 * 60 * 60 * 24);
+  const dayPass = Math.round(dayCount(new Date(), date)); // 10
+  // daypass
+  if (dayPass === 0) return 'Today';
+  if (dayPass === 1) return 'Yesterday';
+  if (dayPass <= 7) return `${dayPass} days ago`;
+  else {
+    const day = `${date.getDate()}`.padStart(2, '0');
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+};
+
 // Display movment
-const displayMoments = function (movements, sort = false) {
+const displayMoments = function (acc, sort = false) {
   containerMovements.innerHTML = ' ';
   const sortMovements = sort
-    ? movements.slice().sort((a, b) => a - b)
-    : movements;
+    ? acc.movements.slice().sort((a, b) => a - b)
+    : acc.movements;
   sortMovements.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
+
+    // loop date
+    const date = new Date(acc.movementsDates[i]);
+    const showDate = movemntDate(date);
+
     const html = `<div class="movements__row">
     <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
+    <div class="movements__date">${showDate}</div>
     <div class="movements__value">${mov}€</div>
     </div>`;
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -137,10 +184,22 @@ const updataeUI = function (updateAcc) {
   // Display balance
   cacuBalance(updateAcc);
   // Display movement
-  displayMoments(updateAcc.movements);
+  displayMoments(updateAcc);
   // display sumary
   calDisplaySummary(updateAcc);
 };
+
+const dateMove = new Date().toISOString();
+
+// test API date and time
+const now = new Date();
+const settime = {
+  hour: 'numeric',
+  minute: 'numeric',
+  day: 'numeric',
+};
+
+labelDate.textContent = new Intl.DateTimeFormat('es-Uk', settime).format(now);
 
 ///////////// Login In ///////////////////
 let currentAccount;
@@ -154,27 +213,34 @@ btnLogin.addEventListener('click', function (e) {
     labelWelcome.textContent = `hello ${currentAccount.owner.split(' ')[0]}`;
     containerApp.style.opacity = 1;
     updataeUI(currentAccount);
+    ////// Create Date
+    const now = new Date();
+    const day = `${now.getDate()}`.padStart(2, '0');
+    const month = `${now.getMonth() + 1}`.padStart(2, '0');
+    const year = now.getFullYear();
+    const hour = `${now.getHours()}`.padStart(2, '0');
+    const minute = `${now.getMinutes()}`.padStart(2, '0');
+
+    labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minute}`;
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
   }
 });
-
 ///////////// Loan ///////////////////
 btnLoan.addEventListener('click', function (e) {
   e.preventDefault();
 
-  const amoutRequest = Number(inputLoanAmount.value);
+  const amoutRequest = +inputLoanAmount.value;
   if (amoutRequest > 0 && currentAccount.movements.some(mov => mov >= 0)) {
     currentAccount.movements.push(amoutRequest);
+    currentAccount.movementsDates.push(dateMove);
 
     // update UI
     updataeUI(currentAccount);
   }
-
   inputLoanAmount.value = '';
 });
 ///////////// Transfer ///////////////////
-
 btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
 
@@ -190,7 +256,11 @@ btnTransfer.addEventListener('click', function (e) {
   ) {
     // Doing transfer
     currentAccount.movements.push(-amount);
+    currentAccount.movementsDates.push(dateMove);
+
     receiverAcc.movements.push(amount);
+    receiverAcc.movementsDates.push(dateMove);
+
     updataeUI(currentAccount);
   }
   inputTransferTo.value = inputTransferAmount.value = '';
@@ -261,7 +331,7 @@ btnClose.addEventListener('click', function (e) {
 //   if (mov > 0) {
 //     testLoop.push(mov);
 //   }
-// }
+//
 
 // console.log(moventWithdrall);
 // console.log(moventDepisit);
@@ -434,10 +504,7 @@ const { deposit, withdraw } = accounts
   );
 // console.log(deposit, withdraw);
 
-//// I wan to say thank Jonas a lot
-
 //////////////// change title //////////////
-
 // kêt thúc phần aray m học được rất nhiều thứ, chuyển sang phần luyện tập nào
 
 const convertTitleCase = function (title) {
@@ -449,9 +516,12 @@ const convertTitleCase = function (title) {
     .split(' ')
     .map(word => (exceptions.includes(word) ? word : capitalize(word)))
     .join(' ');
-
-  // console.log(titleCase);
   return capitalize(titleCase); //loai  tu dau tien
 };
-
 // console.log(convertTitleCase('and here is another title WITH an EXAMPLE'));
+
+// Fake login
+currentAccount = account1;
+updataeUI(currentAccount);
+containerApp.style.opacity = 100;
+// tinh bnhieu date da qua
