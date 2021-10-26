@@ -39,8 +39,8 @@ const account2 = {
     '2020-06-25T18:49:59.371Z',
     '2020-07-26T12:01:20.894Z',
   ],
-  currency: 'USD',
-  locale: 'en-US',
+  currency: 'VND',
+  locale: 'vi-VI',
 };
 
 const account3 = {
@@ -109,7 +109,8 @@ createUsername(accounts);
 // Display Balance
 const cacuBalance = function (acc) {
   acc.balance = acc.movements.reduce((acc, cur) => acc + cur, 0);
-  labelBalance.textContent = `${acc.balance} EUR`;
+  const numFommat = fommatMoves(acc.balance, acc.locale, acc.currency);
+  labelBalance.textContent = numFommat;
 };
 
 // Display Summary
@@ -117,23 +118,30 @@ const calDisplaySummary = function (account) {
   const incomes = account.movements
     .filter(mov => mov > 0)
     .reduce((acc, cur) => acc + cur);
-  labelSumIn.innerHTML = `${incomes}€ `;
-
+  const numFommat = fommatMoves(incomes, account.locale, account.currency);
+  labelSumIn.innerHTML = numFommat;
   const outcomes = account.movements
     .filter(mov => mov < 0)
     .reduce((acc, cur) => acc + cur, 0);
-  labelSumOut.textContent = `${Math.abs(outcomes)}€`;
+
+  const outFommat = fommatMoves(
+    Math.abs(outcomes),
+    account.locale,
+    account.currency
+  );
+  labelSumOut.textContent = outFommat;
 
   const interest = account.movements
     .filter(mov => mov > 0)
     .map(deposit => (deposit * account.interestRate) / 100)
     .filter(int => int >= 1)
     .reduce((acc, inter) => acc + inter, 0);
-  labelSumInterest.textContent = `${interest}€`;
+  const interFommat = fommatMoves(interest, account.locale, account.currency);
+  labelSumInterest.textContent = interFommat;
 };
 
 // function date
-const movemntDate = function (date) {
+const movemntDate = function (date, locale) {
   const dayCount = (date1, date2) =>
     Math.abs(date2 - date1) / (1000 * 60 * 60 * 24);
   const dayPass = Math.round(dayCount(new Date(), date)); // 10
@@ -142,11 +150,27 @@ const movemntDate = function (date) {
   if (dayPass === 1) return 'Yesterday';
   if (dayPass <= 7) return `${dayPass} days ago`;
   else {
-    const day = `${date.getDate()}`.padStart(2, '0');
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    const time = new Intl.DateTimeFormat(locale).format(date);
+    return time;
+    // const locale = navigator.language;
+    // labelDate.textContent = new Intl.DateTimeFormat(
+    //   currentAccount.locale,
+    //   settime
+    // ).format(now);
+
+    // const day = `${date.getDate()}`.padStart(2, '0');
+    // const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    // const year = date.getFullYear();
+    // return `${day}/${month}/${year}`;
   }
+};
+
+// Fommat Function
+const fommatMoves = function (value, locale, currency) {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency', // bat buoc
+    currency: currency,
+  }).format(value);
 };
 
 // Display movment
@@ -160,12 +184,14 @@ const displayMoments = function (acc, sort = false) {
 
     // loop date
     const date = new Date(acc.movementsDates[i]);
-    const showDate = movemntDate(date);
+    const showDate = movemntDate(date, acc.locale);
 
+    // display NumberFormatt API // yeah m lam rat tot, ho phai ne phuc minh, kinh trongj minh
+    const numFommat = fommatMoves(mov, acc.locale, acc.currency);
     const html = `<div class="movements__row">
     <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
     <div class="movements__date">${showDate}</div>
-    <div class="movements__value">${mov}€</div>
+    <div class="movements__value">${numFommat}</div>
     </div>`;
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
@@ -191,16 +217,6 @@ const updataeUI = function (updateAcc) {
 
 const dateMove = new Date().toISOString();
 
-// test API date and time
-const now = new Date();
-const settime = {
-  hour: 'numeric',
-  minute: 'numeric',
-  day: 'numeric',
-};
-
-labelDate.textContent = new Intl.DateTimeFormat('es-Uk', settime).format(now);
-
 ///////////// Login In ///////////////////
 let currentAccount;
 btnLogin.addEventListener('click', function (e) {
@@ -213,33 +229,50 @@ btnLogin.addEventListener('click', function (e) {
     labelWelcome.textContent = `hello ${currentAccount.owner.split(' ')[0]}`;
     containerApp.style.opacity = 1;
     updataeUI(currentAccount);
-    ////// Create Date
-    const now = new Date();
-    const day = `${now.getDate()}`.padStart(2, '0');
-    const month = `${now.getMonth() + 1}`.padStart(2, '0');
-    const year = now.getFullYear();
-    const hour = `${now.getHours()}`.padStart(2, '0');
-    const minute = `${now.getMinutes()}`.padStart(2, '0');
 
-    labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minute}`;
+    // test API date and time
+    const now = new Date();
+    const settime = {
+      hour: 'numeric',
+      minute: 'numeric',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    };
+    // const locale = navigator.language;
+    labelDate.textContent = new Intl.DateTimeFormat(
+      currentAccount.locale,
+      settime
+    ).format(now);
+    ////// Create Date
+    // const now = new Date();
+    // const day = `${now.getDate()}`.padStart(2, '0');
+    // const month = `${now.getMonth() + 1}`.padStart(2, '0');
+    // const year = now.getFullYear();
+    // const hour = `${now.getHours()}`.padStart(2, '0');
+    // const minute = `${now.getMinutes()}`.padStart(2, '0');
+
+    // labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minute}`;
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
   }
 });
+
 ///////////// Loan ///////////////////
 btnLoan.addEventListener('click', function (e) {
   e.preventDefault();
-
   const amoutRequest = +inputLoanAmount.value;
   if (amoutRequest > 0 && currentAccount.movements.some(mov => mov >= 0)) {
-    currentAccount.movements.push(amoutRequest);
-    currentAccount.movementsDates.push(dateMove);
-
-    // update UI
-    updataeUI(currentAccount);
+    setTimeout(function () {
+      currentAccount.movements.push(amoutRequest);
+      currentAccount.movementsDates.push(dateMove);
+      // update UI
+      updataeUI(currentAccount);
+    }, 3000);
   }
   inputLoanAmount.value = '';
 });
+
 ///////////// Transfer ///////////////////
 btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
@@ -283,6 +316,43 @@ btnClose.addEventListener('click', function (e) {
   // hide account
   containerApp.style.opacity = 0;
 });
+
+// internation number API
+const num = 84884834834;
+const options = {
+  style: 'currency',
+  unit: 'celsius',
+  currency: 'EUR',
+};
+console.log('US :', new Intl.NumberFormat('en-US', options).format(num));
+console.log('VN :', new Intl.NumberFormat('vi-VN', options).format(num));
+console.log(
+  navigator.language,
+  new Intl.NumberFormat(navigator.language, options).format(num)
+);
+// timeout
+function xinchao(ten, tuoi) {
+  alert(ten + ' and ' + tuoi);
+}
+// console.log(setTimeout(xinchao, 3000, 'Mai', 'Lam tot'));
+// Practice ham settimeou
+
+const getName = ['Mai', ''];
+const gettime = setTimeout(
+  (name, lastName) => console.log(`${name} ${lastName} you did it`),
+  3000,
+  'Mai',
+  'Mit'
+);
+if (getName.includes('Mit')) clearTimeout(gettime);
+
+// tao time lien tuc
+
+// setInterval
+// setInterval(() => {
+//   const now = new Date();
+//   console.log(now);
+// }, 1000);
 
 // console.log(movements.slice());
 //////////////* Ham Map *////////////////
