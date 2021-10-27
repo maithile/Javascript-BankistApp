@@ -218,7 +218,7 @@ const updataeUI = function (updateAcc) {
 const dateMove = new Date().toISOString();
 
 ///////////// Login In ///////////////////
-let currentAccount;
+let currentAccount, timer;
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
   currentAccount = accounts.find(
@@ -229,7 +229,6 @@ btnLogin.addEventListener('click', function (e) {
     labelWelcome.textContent = `hello ${currentAccount.owner.split(' ')[0]}`;
     containerApp.style.opacity = 1;
     updataeUI(currentAccount);
-
     // test API date and time
     const now = new Date();
     const settime = {
@@ -239,7 +238,6 @@ btnLogin.addEventListener('click', function (e) {
       month: 'long',
       year: 'numeric',
     };
-    // const locale = navigator.language;
     labelDate.textContent = new Intl.DateTimeFormat(
       currentAccount.locale,
       settime
@@ -253,6 +251,9 @@ btnLogin.addEventListener('click', function (e) {
     // const minute = `${now.getMinutes()}`.padStart(2, '0');
 
     // labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minute}`;
+
+    if (timer) clearInterval(timer);
+    timer = setTimelogout();
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
   }
@@ -268,6 +269,9 @@ btnLoan.addEventListener('click', function (e) {
       currentAccount.movementsDates.push(dateMove);
       // update UI
       updataeUI(currentAccount);
+      // set timer
+      clearInterval(timer);
+      timer = setTimelogout();
     }, 3000);
   }
   inputLoanAmount.value = '';
@@ -294,13 +298,18 @@ btnTransfer.addEventListener('click', function (e) {
     receiverAcc.movements.push(amount);
     receiverAcc.movementsDates.push(dateMove);
 
+    // update UI
     updataeUI(currentAccount);
+
+    // clear timer
+    // set timer
+    clearInterval(timer);
+    timer = setTimelogout();
   }
   inputTransferTo.value = inputTransferAmount.value = '';
 });
 
 ///////////// Delete Account  ///////////////////
-// dung splice cat no di
 btnClose.addEventListener('click', function (e) {
   e.preventDefault();
   if (
@@ -317,34 +326,114 @@ btnClose.addEventListener('click', function (e) {
   containerApp.style.opacity = 0;
 });
 
-// internation number API
-const num = 84884834834;
-const options = {
-  style: 'currency',
-  unit: 'celsius',
-  currency: 'EUR',
+//////////// Set time logout to user /////////////
+const setTimelogout = function () {
+  // set time 5 minute
+  let time = 30;
+  // goi time sau moi giay
+  const tick = function () {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const second = String(time % 60).padStart(2, 0);
+    // display UI
+    labelTimer.textContent = `${min} : ${second}`;
+    if (time === 0) {
+      clearInterval(timer);
+      labelWelcome.textContent = `Login to start`;
+      containerApp.style.opacity = 0;
+    }
+    // decrease sau moi giay
+    time--;
+  };
+  tick();
+  const timer = setInterval(tick, 1000);
+  return timer;
 };
-console.log('US :', new Intl.NumberFormat('en-US', options).format(num));
-console.log('VN :', new Intl.NumberFormat('vi-VN', options).format(num));
-console.log(
-  navigator.language,
-  new Intl.NumberFormat(navigator.language, options).format(num)
-);
+/////////////////// practice  /////////////////
+
 // timeout
-function xinchao(ten, tuoi) {
-  alert(ten + ' and ' + tuoi);
-}
+// function xinchao(ten, tuoi) {
+//   alert(ten + ' and ' + tuoi);
+// }
 // console.log(setTimeout(xinchao, 3000, 'Mai', 'Lam tot'));
 // Practice ham settimeou
+// const getName = ['Mai', ''];
+// const gettime = setTimeout(
+//   (name, lastName) => console.log(`${name} ${lastName} you did it`),
+//   3000,
+//   'Mai',
+//   'Mit'
+// );
+// if (getName.includes('Mit')) clearTimeout(gettime);
 
-const getName = ['Mai', ''];
-const gettime = setTimeout(
-  (name, lastName) => console.log(`${name} ${lastName} you did it`),
-  3000,
-  'Mai',
-  'Mit'
-);
-if (getName.includes('Mit')) clearTimeout(gettime);
+// internation number API
+// const num = 84884834834;
+// const options = {
+//   style: 'currency',
+//   unit: 'celsius',
+//   currency: 'EUR',
+// };
+// console.log('US :', new Intl.NumberFormat('en-US', options).format(num));
+// console.log('VN :', new Intl.NumberFormat('vi-VN', options).format(num));
+// console.log(
+//   navigator.language,
+//   new Intl.NumberFormat(navigator.language, options).format(num)
+// );
+/////////////////// practice 1 /////////////////
+// const bankDepositSum = accounts
+//   .map(acc => acc.movements)
+//   .flat()
+//   .filter(mov => mov > 0)
+//   .reduce((acc, cur) => acc + cur, 0);
+// // console.log(bankDepositSum);
+
+// // another way
+// const bankDepositSum2 = accounts.flatMap(acc => acc.movements);
+
+// /////////////////// practice 2  /////////////////
+// // const bankDeposit1000 = accounts
+// //   .map(acc => acc.movements)
+// //   .flat()
+// //   .filter(mov => mov >= 1000);
+// // console.log(bankDeposit1000.length);
+
+// const bankDeposit1000 = accounts
+//   .flatMap(acc => acc.movements)
+//   .reduce((count, cur) => (cur >= 1000 ? ++count : count), 0);
+// // console.log(bankDeposit1000);
+
+// const { deposit, withdraw } = accounts
+//   .flatMap(acc => acc.movements)
+//   .reduce(
+//     (sum, cur) => {
+//       // cur > 0 ? (sum.deposit += cur) : (sum.withdraw += cur);
+//       sum[cur > 0 ? 'deposit' : 'withdraw'] += cur; // ui za tui quen cho nay
+//       return sum;
+//     },
+//     { deposit: 0, withdraw: 0 }
+//   );
+// // console.log(deposit, withdraw);
+
+// //////////////// change title //////////////
+// // kêt thúc phần aray m học được rất nhiều thứ, chuyển sang phần luyện tập nào
+
+// const convertTitleCase = function (title) {
+//   const exceptions = ['a', 'an', 'the', 'but', 'or', 'on', 'in', 'with', 'and'];
+//   const capitalize = str => str[0].toUpperCase() + str.slice(1);
+
+//   const titleCase = title
+//     .toLowerCase()
+//     .split(' ')
+//     .map(word => (exceptions.includes(word) ? word : capitalize(word)))
+//     .join(' ');
+//   return capitalize(titleCase); //loai  tu dau tien
+// };
+// // console.log(convertTitleCase('and here is another title WITH an EXAMPLE'));
+
+// Fake login
+// currentAccount = account1;
+// updataeUI(currentAccount);
+// containerApp.style.opacity = 100;
+// tinh bnhieu date da qua
 
 // tao time lien tuc
 
@@ -538,60 +627,3 @@ if (getName.includes('Mit')) clearTimeout(gettime);
 //   // cach khac
 //   const movesUT2 = [...document.querySelectorAll('.movements__value')];
 // });
-
-/////////////////// practice 1 /////////////////
-const bankDepositSum = accounts
-  .map(acc => acc.movements)
-  .flat()
-  .filter(mov => mov > 0)
-  .reduce((acc, cur) => acc + cur, 0);
-// console.log(bankDepositSum);
-
-// another way
-const bankDepositSum2 = accounts.flatMap(acc => acc.movements);
-
-/////////////////// practice 2  /////////////////
-// const bankDeposit1000 = accounts
-//   .map(acc => acc.movements)
-//   .flat()
-//   .filter(mov => mov >= 1000);
-// console.log(bankDeposit1000.length);
-
-const bankDeposit1000 = accounts
-  .flatMap(acc => acc.movements)
-  .reduce((count, cur) => (cur >= 1000 ? ++count : count), 0);
-// console.log(bankDeposit1000);
-
-const { deposit, withdraw } = accounts
-  .flatMap(acc => acc.movements)
-  .reduce(
-    (sum, cur) => {
-      // cur > 0 ? (sum.deposit += cur) : (sum.withdraw += cur);
-      sum[cur > 0 ? 'deposit' : 'withdraw'] += cur; // ui za tui quen cho nay
-      return sum;
-    },
-    { deposit: 0, withdraw: 0 }
-  );
-// console.log(deposit, withdraw);
-
-//////////////// change title //////////////
-// kêt thúc phần aray m học được rất nhiều thứ, chuyển sang phần luyện tập nào
-
-const convertTitleCase = function (title) {
-  const exceptions = ['a', 'an', 'the', 'but', 'or', 'on', 'in', 'with', 'and'];
-  const capitalize = str => str[0].toUpperCase() + str.slice(1);
-
-  const titleCase = title
-    .toLowerCase()
-    .split(' ')
-    .map(word => (exceptions.includes(word) ? word : capitalize(word)))
-    .join(' ');
-  return capitalize(titleCase); //loai  tu dau tien
-};
-// console.log(convertTitleCase('and here is another title WITH an EXAMPLE'));
-
-// Fake login
-currentAccount = account1;
-updataeUI(currentAccount);
-containerApp.style.opacity = 100;
-// tinh bnhieu date da qua
